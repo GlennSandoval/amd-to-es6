@@ -21,10 +21,50 @@ class Module extends AbstractSyntaxTree {
             var nodes = getModuleCode(this.ast);
             var imports = generateImports(dependencies, options);
             var code = generateCode(this.ast, nodes, options);
-            this.ast.body = imports.concat(code);
-            this.removeUseStrict();
+
+            var body = imports.concat(code);
+
+            if(options.sugar) {
+                body = [
+                    {
+                        type: "ExpressionStatement",
+                        expression: {
+                            type: "CallExpression",
+                            callee: {
+                                type: "Identifier",
+                                name: "define"
+                            },
+                            arguments: [
+                                {
+                                    type: "ArrowFunctionExpression",
+                                    id: null,
+                                    params: [
+                                        {
+                                            type: "Identifier",
+                                            name: "require"
+                                        }
+                                    ],
+                                    body: {
+                                        type: "BlockStatement",
+                                        body: body
+                                    },
+                                    generator: false,
+                                    expression: false,
+                                    async: false
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+
+            this.ast.body = body;
+
+            if(!options.sugar) {
+                this.removeUseStrict();
+            }
         }
-        
+
     }
 
     removeUseStrict () {

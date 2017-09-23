@@ -92,7 +92,7 @@ module.exports = function (ast, code, options) {
             return changeVariableDeclaration(node, options);
         } else if (isRequireCallExpression(node)) {
             return changeRequireCallExpressionToImportDeclaration(node, options);
-        } else if (isReturnStatement(node)) {
+        } else if (isReturnStatement(node) && !options.sugar) {
             return changeReturnToExportDefaultDeclaration(node);
         } else if (isAssignmentMemberExpression(node)) {
             var expression = changeNestedRequireCallExpressionToNamedImportDeclaration(node.expression.right, {
